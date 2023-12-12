@@ -12,7 +12,7 @@ export class Content {
   type: string;
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Parent' })
-  post: Post | User;
+  parent: Post | User;
 }
 
 export const ContentSchema = SchemaFactory.createForClass(Content);

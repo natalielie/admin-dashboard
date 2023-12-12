@@ -12,7 +12,7 @@ export class Blog {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Users' })
   users: User[];
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Users' })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Content' })
   content: Content[];
 }
 
