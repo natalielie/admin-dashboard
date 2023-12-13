@@ -1,50 +1,80 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { User } from './interfaces/user.interface';
-import { LoginDTO } from 'src/auth/dto/loginDTO';
-import { RegisterDTO } from 'src/auth/dto/registerDTO';
-import * as bcrypt from 'bcrypt';
 import { Payload } from 'src/shared/payload';
-
-//export type User = User;
+import { UserDocument } from './schema/user.schema';
+import { UpdateUserDto } from './dto/updateUserDto';
+import { CreateUserDto } from './dto/createUserDto';
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel('User') private userModel: Model<User>) {}
-  async create(registerDTO: RegisterDTO) {
-    const { email } = registerDTO;
+  constructor(@InjectModel('User') private userModel: Model<UserDocument>) {}
+
+  async create(createDTO: CreateUserDto) {
+    const { email } = createDTO;
     const user = await this.userModel.findOne({ email });
     if (user) {
       throw new HttpException('user already exists', HttpStatus.BAD_REQUEST);
     }
+    const createdUser = new this.userModel(createDTO);
 
-    const createdUser = new this.userModel(registerDTO);
-
-    await createdUser.save();
-    return this.sanitizeUser(createdUser);
+    return await createdUser.save();
   }
 
-  async findByLogin(userDTO: LoginDTO) {
-    const { email, password } = userDTO;
-    const user = await this.userModel.findOne({ email });
-    if (!user) {
-      throw new HttpException('user doesnt exists', HttpStatus.BAD_REQUEST);
-    }
-    if (await bcrypt.compare(password, user.password)) {
-      return this.sanitizeUser(user);
-    } else {
-      throw new HttpException('invalid credential', HttpStatus.BAD_REQUEST);
-    }
+  // sanitizeUser(user: User) {
+  //   const sanitized = user;
+  //   delete sanitized['password'];
+  //   return sanitized;
+  // }
+  // async create(createUserDto: CreateUserDto): Promise<UserDocument> {
+  //   const createdUser = new this.userModel(createUserDto);
+  //   return createdUser.save();
+  // }
+
+  /** find */
+
+  // async findByLogin(userDTO: LoginDto) {
+  //   const { email, password } = userDTO;
+  //   const user = await this.userModel.findOne({ email });
+  //   if (!user) {
+  //     throw new HttpException('user doesnt exists', HttpStatus.BAD_REQUEST);
+  //   }
+  //   if (await bcrypt.compare(password, user.password)) {
+  //     return this.sanitizeUser(user);
+  //   } else {
+  //     throw new HttpException('invalid credential', HttpStatus.BAD_REQUEST);
+  //   }
+  // }
+  async findByLogin(email: string): Promise<UserDocument> {
+    return this.userModel.findOne({ email }).exec();
   }
-  sanitizeUser(user: User) {
-    const sanitized = user.toObject();
-    delete sanitized['password'];
-    return sanitized;
-  }
-  // the new methods
+
   async findByPayload(payload: Payload) {
-    //const { email } = payload.user.email;
-    return await this.userModel.findOne({ email: payload.user.email });
+    const { email } = payload.user;
+    return await this.userModel.findOne({ email });
+  }
+
+  async findAll(): Promise<UserDocument[]> {
+    return this.userModel.find().exec();
+  }
+
+  async findById(id: string): Promise<UserDocument> {
+    return this.userModel.findById({ _id: id });
+  }
+
+  async remove(id: string) {
+    const filter = { _id: id };
+
+    const deleted = await this.userModel.deleteOne(filter);
+    return deleted;
+  }
+
+  async update(
+    id: string,
+    updateUserDto: UpdateUserDto,
+  ): Promise<UserDocument> {
+    return this.userModel
+      .findByIdAndUpdate(id, updateUserDto, { new: true })
+      .exec();
   }
 }

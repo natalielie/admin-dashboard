@@ -1,48 +1,32 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
-import { v4 as uuid } from 'uuid';
-import * as bcrypt from 'bcrypt';
+import mongoose, { Types } from 'mongoose';
+import { Role } from 'src/roles/entities/role.enum';
 
-export type UserDocument = HydratedDocument<User>;
+export type UserDocument = User & Document;
 
-@Schema({
-  toJSON: {
-    getters: true,
-    virtuals: true,
-  },
-  timestamps: true,
-})
+@Schema()
 export class User {
-  @Prop({
-    type: String,
-    unique: true,
-    default: function genUUID() {
-      return uuid();
-    },
-  })
-  userId: string;
-
-  @Prop()
+  _id: Types.ObjectId;
+  @Prop({ required: true })
   firstName: string;
 
-  @Prop()
+  @Prop({ required: true })
   lastName: string;
 
-  @Prop()
+  @Prop({ required: true })
   age: number;
+
+  @Prop({ type: mongoose.Schema.Types.String, ref: 'Role' })
+  role: Role['title'];
+
+  @Prop({ required: true, unique: true })
+  email: string;
+
+  @Prop({ required: true })
+  password: string;
+
+  @Prop()
+  refreshToken: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
-
-UserSchema.pre('save', async function (next) {
-  try {
-    if (!this.isModified('password')) {
-      return next();
-    }
-    const hashed = await bcrypt.hash(this['password'], 10);
-    this['password'] = hashed;
-    return next();
-  } catch (err) {
-    return next(err);
-  }
-});
