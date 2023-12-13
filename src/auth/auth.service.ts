@@ -83,14 +83,13 @@ export class AuthService {
     if (!user) throw new BadRequestException('User does not exist');
 
     const passwordMatches = await bcrypt.compare(
-      currentPassword.toString(),
+      currentPassword,
       user.password,
     );
     if (!passwordMatches) {
       throw new BadRequestException('Password is incorrect');
     } else {
       const hash = await this.hashData(newPassword);
-      console.log(hash);
       const updatedUser = await this.userService.update(user._id.toString(), {
         ...user,
         password: hash,
@@ -177,7 +176,7 @@ export class AuthService {
   }
 
   async hashData(data: string): Promise<string> {
-    const salt = await bcrypt.genSalt();
-    return await bcrypt.hash(data, salt);
+    const saltOrRounds = 10;
+    return await bcrypt.hash(data, saltOrRounds);
   }
 }
