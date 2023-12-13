@@ -1,20 +1,20 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, VerifiedCallback } from 'passport-jwt';
-import { Strategy } from 'passport-jwt';
-
-import { AuthService } from './auth.service';
+import { Strategy } from 'passport-local';
+import { AuthService } from '../auth.service';
+import { jwtConstants } from '../constants';
+import { Payload } from 'src/shared/payload';
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy) {
+export class AccessTokenStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor(private authService: AuthService) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      secretOrKey: process.env.SECRET_KEY,
+      secretOrKey: jwtConstants.secret,
     });
   }
-
-  async validate(payload: any, done: VerifiedCallback) {
+  async validate(payload: Payload, done: VerifiedCallback) {
     const user = await this.authService.validateUser(payload);
     if (!user) {
       return done(
@@ -23,6 +23,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       );
     }
 
-    return done(null, user, payload.iat);
+    return done(null, user);
   }
 }

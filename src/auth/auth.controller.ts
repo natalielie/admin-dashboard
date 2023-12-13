@@ -1,45 +1,45 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport/dist/auth.guard';
+import { Body, Controller, Param, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { LoginDTO } from './dto/loginDTO';
-import { RegisterDTO } from './dto/registerDTO';
-import { UsersService } from 'src/users/users.service';
+import { LoginDto } from './dto/loginDto';
+import { CreateUserDto } from 'src/users/dto/createUserDto';
 
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private userService: UsersService,
-    private authService: AuthService,
-  ) {}
+  constructor(private authService: AuthService) {}
 
-  @Get('/onlyauth')
-  @UseGuards(AuthGuard('jwt'))
-  async hiddenInformation() {
-    return 'hidden information';
+  @Post('signup')
+  signup(
+    @Body() createUserDto: CreateUserDto,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
+    return this.authService.signUp(createUserDto);
   }
 
-  @Get('/anyone')
-  async publicInformation() {
-    return 'this can be seen by anyone';
+  @Post('signin')
+  signin(
+    @Body() data: LoginDto,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
+    return this.authService.signIn(data);
   }
 
-  @Post('register')
-  async register(@Body() registerDTO: RegisterDTO) {
-    const user = await this.userService.create(registerDTO);
-    const payload = {
-      email: user.email,
-    };
+  @Post('reset-token/:id')
+  resetToken(
+    @Param('id') userId: string,
+    @Body() refreshToken: string,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
+    return this.authService.refreshTokens(userId, refreshToken);
+  }
 
-    const token = await this.authService.signPayload(payload.email);
-    return { user, token };
+  @Post('reset-password/:id')
+  resetPassword(
+    @Param('id') userId: string,
+    @Body() currentPassword: string,
+    newPassword: string,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
+    return this.authService.resetPassword(userId, currentPassword, newPassword);
   }
-  @Post('login')
-  async login(@Body() loginDTO: LoginDTO) {
-    const user = await this.userService.findByLogin(loginDTO);
-    const payload = {
-      email: user.email,
-    };
-    const token = await this.authService.signPayload(payload.email);
-    return { user, token };
-  }
+
+  // @Get('logout')
+  // logout(@Req() req: Request) {
+  //   this.authService.logout(req.user['sub']);
+  // }
 }
