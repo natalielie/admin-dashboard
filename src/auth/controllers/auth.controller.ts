@@ -1,7 +1,8 @@
 import { Body, Controller, Param, Patch, Post } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { LoginDto } from './dto/loginDto';
-import { CreateUserDto } from 'src/users/dto/createUserDto';
+import { AuthService } from '../services/auth.service';
+import { LoginDto } from '../dto/loginDto';
+import { CreateUserDto } from 'src/users/dto/create-user.dto';
+import { UserDocument } from 'src/users/schema/user.schema';
 
 @Controller('auth')
 export class AuthController {
@@ -33,12 +34,12 @@ export class AuthController {
   resetPassword(
     @Param('id') userId: string,
     @Body() { currentPassword, newPassword },
-  ): Promise<{ accessToken: string; refreshToken: string }> {
+  ): Promise<UserDocument> {
     return this.authService.resetPassword(userId, currentPassword, newPassword);
   }
 
   // @Get('logout')
   // logout(@Req() req: Request) {
-  //   this.authService.logout(req.user['sub']);
+  //   this.authService.logout(req['sub']);
   // }
 }

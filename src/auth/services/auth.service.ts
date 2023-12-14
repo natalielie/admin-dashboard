@@ -3,15 +3,14 @@ import {
   ForbiddenException,
   Injectable,
 } from '@nestjs/common';
-import { UsersService } from '../users/users.service';
+import { UsersService } from '../../users/services/users.service';
 import * as bcrypt from 'bcrypt';
-
 import { JwtService } from '@nestjs/jwt';
-import { Payload } from 'src/shared/payload';
 
-import { CreateUserDto } from 'src/users/dto/createUserDto';
-import { LoginDto } from './dto/loginDto';
-import { jwtConstants } from './constants';
+import { Payload } from 'src/shared/payload';
+import { CreateUserDto } from 'src/users/dto/create-user.dto';
+import { LoginDto } from '../dto/loginDto';
+import { jwtConstants } from '../constants';
 import { UserDocument } from 'src/users/schema/user.schema';
 
 @Injectable()
@@ -55,7 +54,9 @@ export class AuthService {
     data: LoginDto,
   ): Promise<{ accessToken: string; refreshToken: string }> {
     const user = await this.userService.findByLogin(data.email);
-    if (!user) throw new BadRequestException('User does not exist');
+    if (!user) {
+      throw new BadRequestException('User does not exist');
+    }
 
     const passwordMatches = await bcrypt.compare(data.password, user.password);
     if (!passwordMatches)
@@ -78,9 +79,11 @@ export class AuthService {
     userId: string,
     currentPassword: string,
     newPassword: string,
-  ): Promise<{ accessToken: string; refreshToken: string }> {
+  ): Promise<UserDocument> {
     const user = await this.userService.findById(userId);
-    if (!user) throw new BadRequestException('User does not exist');
+    if (!user) {
+      throw new BadRequestException('User does not exist');
+    }
 
     const passwordMatches = await bcrypt.compare(
       currentPassword,
@@ -91,7 +94,6 @@ export class AuthService {
     } else {
       const hash = await this.hashData(newPassword);
       const updatedUser = await this.userService.update(user._id.toString(), {
-        ...user,
         password: hash,
       });
 
@@ -104,7 +106,7 @@ export class AuthService {
         updatedUser._id.toString(),
         tokens.refreshToken,
       );
-      return tokens;
+      return updatedUser;
     }
   }
 
@@ -113,8 +115,9 @@ export class AuthService {
     refreshToken: string,
   ): Promise<{ accessToken: string; refreshToken: string }> {
     const user = await this.userService.findById(userId);
-    if (!user || !user.refreshToken)
+    if (!user || !user.refreshToken) {
       throw new ForbiddenException('Access Denied');
+    }
 
     const refreshTokenMatches = await bcrypt.compare(
       refreshToken.toString(),
@@ -176,7 +179,7 @@ export class AuthService {
   }
 
   async hashData(data: string): Promise<string> {
-    const saltOrRounds = 10;
-    return await bcrypt.hash(data, saltOrRounds);
+    const salt = await bcrypt.genSalt();
+    return await bcrypt.hash(data, salt);
   }
 }

@@ -1,4 +1,4 @@
-import { Role } from 'src/roles/entities/role.enum';
+import { Role } from 'src/roles/enum/role.enum';
 
 export interface User {
   _id: string;

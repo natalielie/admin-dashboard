@@ -1,10 +1,15 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Payload } from 'src/shared/payload';
-import { UserDocument } from './schema/user.schema';
-import { UpdateUserDto } from './dto/updateUserDto';
-import { CreateUserDto } from './dto/createUserDto';
+import { UserDocument } from '../schema/user.schema';
+import { UpdateUserDto } from '../dto/update-user.dto';
+import { CreateUserDto } from '../dto/create-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -73,8 +78,17 @@ export class UsersService {
     id: string,
     updateUserDto: UpdateUserDto,
   ): Promise<UserDocument> {
-    return this.userModel
-      .findByIdAndUpdate(id, updateUserDto, { new: true })
-      .exec();
+    const existingUser = await this.userModel.findOneAndUpdate(
+      { _id: id },
+      updateUserDto,
+      { new: true },
+    );
+    if (!existingUser) {
+      throw new NotFoundException(`User #${id} not found`);
+    }
+    return existingUser;
+    // return this.userModel
+    //   .findByIdAndUpdate(id, updateUserDto, { new: true })
+    //   .exec();
   }
 }
