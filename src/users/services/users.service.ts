@@ -7,49 +7,31 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Payload } from 'src/shared/payload';
-import { UserDocument } from '../schema/user.schema';
+import { User, UserDocument } from '../schema/user.schema';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { CreateUserDto } from '../dto/create-user.dto';
+import { RoleService } from 'src/roles/services/roles.service';
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel('User') private userModel: Model<UserDocument>) {}
+  constructor(
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
+    private roleService: RoleService,
+  ) {}
 
   async create(createDTO: CreateUserDto) {
     const { email } = createDTO;
     const user = await this.userModel.findOne({ email });
     if (user) {
-      throw new HttpException('user already exists', HttpStatus.BAD_REQUEST);
+      throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
     }
     const createdUser = new this.userModel(createDTO);
 
     return await createdUser.save();
   }
 
-  // sanitizeUser(user: User) {
-  //   const sanitized = user;
-  //   delete sanitized['password'];
-  //   return sanitized;
-  // }
-  // async create(createUserDto: CreateUserDto): Promise<UserDocument> {
-  //   const createdUser = new this.userModel(createUserDto);
-  //   return createdUser.save();
-  // }
-
   /** find */
 
-  // async findByLogin(userDTO: LoginDto) {
-  //   const { email, password } = userDTO;
-  //   const user = await this.userModel.findOne({ email });
-  //   if (!user) {
-  //     throw new HttpException('user doesnt exists', HttpStatus.BAD_REQUEST);
-  //   }
-  //   if (await bcrypt.compare(password, user.password)) {
-  //     return this.sanitizeUser(user);
-  //   } else {
-  //     throw new HttpException('invalid credential', HttpStatus.BAD_REQUEST);
-  //   }
-  // }
   async findByLogin(email: string): Promise<UserDocument> {
     return this.userModel.findOne({ email }).exec();
   }
@@ -86,9 +68,9 @@ export class UsersService {
     if (!existingUser) {
       throw new NotFoundException(`User #${id} not found`);
     }
+    // if (updateUserDto.role) {
+    //   await this.roleService.update(id, { title: updateUserDto.role });
+    // }
     return existingUser;
-    // return this.userModel
-    //   .findByIdAndUpdate(id, updateUserDto, { new: true })
-    //   .exec();
   }
 }
