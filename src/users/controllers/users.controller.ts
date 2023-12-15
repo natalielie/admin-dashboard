@@ -7,7 +7,6 @@ import {
   Param,
   Patch,
   Post,
-  Put,
   Res,
 } from '@nestjs/common';
 import { UsersService } from '../services/users.service';
@@ -34,11 +33,6 @@ export class UsersController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(id, updateUserDto);
-  }
-
-  @Put(':id')
   async updateUser(
     @Res() response,
     @Param('id') id: string,

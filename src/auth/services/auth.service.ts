@@ -7,11 +7,11 @@ import { UsersService } from '../../users/services/users.service';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 
-import { Payload } from 'src/shared/payload';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { LoginDto } from '../dto/loginDto';
-import { jwtConstants } from '../constants';
+import { jwtConstants } from '../../utils/constants';
 import { UserDocument } from 'src/users/schema/user.schema';
+import { Payload, Tokens } from '../interfaces/auth.interfaces';
 
 @Injectable()
 export class AuthService {
@@ -24,9 +24,7 @@ export class AuthService {
     return await this.userService.findByPayload(payload);
   }
 
-  async signUp(
-    createUserDto: CreateUserDto,
-  ): Promise<{ accessToken: string; refreshToken: string }> {
+  async signUp(createUserDto: CreateUserDto): Promise<UserDocument> {
     const userExists = await this.userService.findByLogin(createUserDto.email);
     if (userExists) {
       throw new BadRequestException('User already exists');
@@ -47,12 +45,10 @@ export class AuthService {
       createdUser._id.toString(),
       tokens.refreshToken,
     );
-    return tokens;
+    return createdUser;
   }
 
-  async signIn(
-    data: LoginDto,
-  ): Promise<{ accessToken: string; refreshToken: string }> {
+  async signIn(data: LoginDto): Promise<Tokens> {
     const user = await this.userService.findByLogin(data.email);
     if (!user) {
       throw new BadRequestException('User does not exist');
@@ -110,10 +106,7 @@ export class AuthService {
     }
   }
 
-  async refreshTokens(
-    userId: string,
-    refreshToken: string,
-  ): Promise<{ accessToken: string; refreshToken: string }> {
+  async refreshTokens(userId: string, refreshToken: string): Promise<Tokens> {
     const user = await this.userService.findById(userId);
     if (!user || !user.refreshToken) {
       throw new ForbiddenException('Access Denied');
@@ -146,7 +139,7 @@ export class AuthService {
     userId: string,
     email: string,
     role: string,
-  ): Promise<{ accessToken: string; refreshToken: string }> {
+  ): Promise<Tokens> {
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(
         {

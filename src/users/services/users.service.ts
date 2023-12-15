@@ -6,10 +6,11 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Payload } from 'src/shared/payload';
 import { UserDocument } from '../schema/user.schema';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { CreateUserDto } from '../dto/create-user.dto';
+import { sanitize } from 'src/utils/sanitize.function';
+import { Payload } from 'src/auth/interfaces/auth.interfaces';
 
 @Injectable()
 export class UsersService {
@@ -23,33 +24,13 @@ export class UsersService {
     }
     const createdUser = new this.userModel(createDTO);
 
-    return await createdUser.save();
-  }
+    await createdUser.save();
 
-  // sanitizeUser(user: User) {
-  //   const sanitized = user;
-  //   delete sanitized['password'];
-  //   return sanitized;
-  // }
-  // async create(createUserDto: CreateUserDto): Promise<UserDocument> {
-  //   const createdUser = new this.userModel(createUserDto);
-  //   return createdUser.save();
-  // }
+    return sanitize(createdUser, ['password', 'refreshToken']);
+  }
 
   /** find */
 
-  // async findByLogin(userDTO: LoginDto) {
-  //   const { email, password } = userDTO;
-  //   const user = await this.userModel.findOne({ email });
-  //   if (!user) {
-  //     throw new HttpException('user doesnt exists', HttpStatus.BAD_REQUEST);
-  //   }
-  //   if (await bcrypt.compare(password, user.password)) {
-  //     return this.sanitizeUser(user);
-  //   } else {
-  //     throw new HttpException('invalid credential', HttpStatus.BAD_REQUEST);
-  //   }
-  // }
   async findByLogin(email: string): Promise<UserDocument> {
     return this.userModel.findOne({ email }).exec();
   }
@@ -86,9 +67,6 @@ export class UsersService {
     if (!existingUser) {
       throw new NotFoundException(`User #${id} not found`);
     }
-    return existingUser;
-    // return this.userModel
-    //   .findByIdAndUpdate(id, updateUserDto, { new: true })
-    //   .exec();
+    return sanitize(existingUser, ['password', 'refreshToken']);
   }
 }
