@@ -4,7 +4,7 @@ import { ExtractJwt, VerifiedCallback } from 'passport-jwt';
 import { Strategy } from 'passport-local';
 import { AuthService } from '../services/auth.service';
 import { jwtConstants } from '../constants';
-import { Payload } from 'src/shared/payload';
+import { Payload } from '../interfaces/auth.interface';
 
 @Injectable()
 export class AccessTokenStrategy extends PassportStrategy(Strategy, 'jwt') {

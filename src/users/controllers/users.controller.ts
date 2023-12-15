@@ -7,7 +7,6 @@ import {
   Param,
   Patch,
   Post,
-  Put,
   Res,
 } from '@nestjs/common';
 import { UsersService } from '../services/users.service';
@@ -38,7 +37,7 @@ export class UsersController {
     return this.usersService.update(id, updateUserDto);
   }
 
-  @Put(':id')
+  @Patch(':id')
   async updateUser(
     @Res() response,
     @Param('id') id: string,

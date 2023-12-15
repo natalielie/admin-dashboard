@@ -1,11 +1,9 @@
-import { Role } from 'src/roles/enum/role.enum';
-
 export interface User {
   _id: string;
   firstName: string;
   lastName: string;
   age: number;
-  role: Role;
+  roleId: string;
   email: string;
   password: string;
 }

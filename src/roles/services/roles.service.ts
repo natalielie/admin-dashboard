@@ -1,16 +1,15 @@
 import {
-  HttpException,
-  HttpStatus,
+  BadRequestException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateRoleDto } from '../dto/create-Role.dto';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Schema } from 'mongoose';
 import { Role, RoleDocument } from '../schema/role.schema';
 import { UpdateRoleDto } from '../dto/update-Role.dto';
-import { UsersService } from 'src/users/services/users.service';
-import { UserDocument } from 'src/users/schema/user.schema';
+//import { User } from 'src/users/schema/user.schema';
+import { ResponseHelper } from 'src/utils/response';
 
 @Injectable()
 export class RoleService {
@@ -21,15 +20,11 @@ export class RoleService {
 
   /** create */
 
-  async create(createDTO: CreateRoleDto) {
-    const { title } = createDTO;
-    const role = await this.roleModel.findOne({ title });
-    if (role) {
-      throw new HttpException('role already exists', HttpStatus.BAD_REQUEST);
-    }
-    const createdRole = new this.roleModel(createDTO);
-
-    return await createdRole.save();
+  async create(createRoleDTO: CreateRoleDto) {
+    await this.canAddRole(createRoleDTO);
+    //createRoleDTO.createdBy = String(authUser?._id);
+    const newRole = new this.roleModel(createRoleDTO);
+    return await newRole.save();
   }
 
   /** find */
@@ -38,24 +33,57 @@ export class RoleService {
     return this.roleModel.findOne({ title }).exec();
   }
 
-  async findByUserId(id: string): Promise<RoleDocument> {
-    return this.roleModel.findById({ user: id });
+  // async findByUserId(id: string): Promise<RoleDocument> {
+  //   return this.roleModel.findById({ user: id });
+  // }
+
+  async getRoleById(id: string | Schema.Types.ObjectId): Promise<RoleDocument> {
+    const role = await this.roleModel.findById(id);
+    if (!role) {
+      throw new NotFoundException(`Role does not exist.`);
+    }
+
+    return role;
   }
 
-  async findAll(): Promise<RoleDocument[]> {
+  async getAllRoles(): Promise<RoleDocument[]> {
     return this.roleModel.find();
   }
 
   /** delete */
 
-  async remove(title: string) {
+  async deleteRole(title: string) {
     const filter = { title: title };
 
     const deleted = await this.roleModel.deleteOne(filter);
     return deleted;
   }
 
+  // async deleteRole(id: string | Schema.Types.ObjectId) {
+  //   await this.getRoleById(id);
+
+  //   const deletedRole = await this.roleModel.findByIdAndDelete(id);
+
+  //   return ResponseHelper.deleteResponse(deletedRole ? true : false);
+  // }
+
   /** update */
+
+  public async updateRole(
+    id: string | Schema.Types.ObjectId,
+    updateRoleDto: UpdateRoleDto,
+    //authUser: User,
+  ) {
+    await this.getRoleById(id);
+
+    // updateRoleDto.updatedBy = authUser?._id.toString();
+    const updatedRole = await this.roleModel.findByIdAndUpdate(
+      id,
+      updateRoleDto,
+    );
+
+    return ResponseHelper.updateResponse(updatedRole ? true : false, id);
+  }
 
   //   async update(
   //     userId: string,
@@ -78,4 +106,12 @@ export class RoleService {
   //     //return updatedRole;
   //     return existingUser;
   //   }
+
+  private async canAddRole(createRoleDTO: CreateRoleDto) {
+    const role = await this.findByTitle(createRoleDTO.title);
+    if (role) {
+      throw new BadRequestException(`Role ${role.title} already exists.`);
+    }
+    return true;
+  }
 }

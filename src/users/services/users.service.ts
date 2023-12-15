@@ -6,11 +6,12 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Payload } from 'src/shared/payload';
 import { User, UserDocument } from '../schema/user.schema';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { RoleService } from 'src/roles/services/roles.service';
+import { sanitize } from 'src/utils/sanitise.function';
+import { Payload } from 'src/auth/interfaces/auth.interface';
 
 @Injectable()
 export class UsersService {
@@ -27,7 +28,9 @@ export class UsersService {
     }
     const createdUser = new this.userModel(createDTO);
 
-    return await createdUser.save();
+    await createdUser.save();
+
+    return sanitize(createdUser, ['password', 'refreshToken']);
   }
 
   /** find */
@@ -71,6 +74,17 @@ export class UsersService {
     // if (updateUserDto.role) {
     //   await this.roleService.update(id, { title: updateUserDto.role });
     // }
-    return existingUser;
+    return sanitize(existingUser, ['password', 'refreshToken']);
+  }
+
+  async setRoleInfo(user: User) {
+    const userRole = await this.roleService.getRoleById(user.roleId);
+    return Object.assign(user, {
+      role: {
+        roleId: userRole?.id ? userRole?.id : null,
+        title: userRole?.title ? userRole?.title : null,
+        shortForm: userRole?.shortForm ? userRole?.shortForm : null,
+      },
+    });
   }
 }

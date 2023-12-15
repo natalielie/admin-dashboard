@@ -7,11 +7,11 @@ import { UsersService } from '../../users/services/users.service';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 
-import { Payload } from 'src/shared/payload';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { LoginDto } from '../dto/loginDto';
 import { jwtConstants } from '../constants';
 import { UserDocument } from 'src/users/schema/user.schema';
+import { Payload, Tokens } from '../interfaces/auth.interface';
 
 @Injectable()
 export class AuthService {
@@ -24,9 +24,7 @@ export class AuthService {
     return await this.userService.findByPayload(payload);
   }
 
-  async signUp(
-    createUserDto: CreateUserDto,
-  ): Promise<{ accessToken: string; refreshToken: string }> {
+  async signUp(createUserDto: CreateUserDto): Promise<Tokens> {
     const userExists = await this.userService.findByLogin(createUserDto.email);
     if (userExists) {
       throw new BadRequestException('User already exists');
@@ -50,22 +48,23 @@ export class AuthService {
     return tokens;
   }
 
-  async signIn(
-    data: LoginDto,
-  ): Promise<{ accessToken: string; refreshToken: string }> {
+  async signIn(data: LoginDto): Promise<Tokens> {
     const user = await this.userService.findByLogin(data.email);
     if (!user) {
       throw new BadRequestException('User does not exist');
     }
 
-    const passwordMatches = await bcrypt.compare(data.password, user.password);
+    const passwordMatches = await this.compareHash(
+      data.password,
+      user.password,
+    );
     if (!passwordMatches)
       throw new BadRequestException('Password is incorrect');
 
     const tokens = await this.getTokens(
       user._id.toString(),
       user.email,
-      user.role,
+      user.roleId,
     );
     await this.updateRefreshToken(user._id.toString(), tokens.refreshToken);
     return tokens;
@@ -85,7 +84,7 @@ export class AuthService {
       throw new BadRequestException('User does not exist');
     }
 
-    const passwordMatches = await bcrypt.compare(
+    const passwordMatches = await this.compareHash(
       currentPassword,
       user.password,
     );
@@ -100,7 +99,7 @@ export class AuthService {
       const tokens = await this.getTokens(
         updatedUser._id.toString(),
         updatedUser.email,
-        updatedUser.role,
+        updatedUser.roleId,
       );
       await this.updateRefreshToken(
         updatedUser._id.toString(),
@@ -110,16 +109,13 @@ export class AuthService {
     }
   }
 
-  async refreshTokens(
-    userId: string,
-    refreshToken: string,
-  ): Promise<{ accessToken: string; refreshToken: string }> {
+  async refreshTokens(userId: string, refreshToken: string): Promise<Tokens> {
     const user = await this.userService.findById(userId);
     if (!user || !user.refreshToken) {
       throw new ForbiddenException('Access Denied');
     }
 
-    const refreshTokenMatches = await bcrypt.compare(
+    const refreshTokenMatches = await this.compareHash(
       refreshToken.toString(),
       user.refreshToken,
     );
@@ -128,7 +124,7 @@ export class AuthService {
     const tokens = await this.getTokens(
       user._id.toString(),
       user.email,
-      user.role,
+      user.roleId,
     );
     await this.updateRefreshToken(user._id.toString(), tokens.refreshToken);
     return tokens;
@@ -146,7 +142,7 @@ export class AuthService {
     userId: string,
     email: string,
     role: string,
-  ): Promise<{ accessToken: string; refreshToken: string }> {
+  ): Promise<Tokens> {
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(
         {
@@ -181,5 +177,9 @@ export class AuthService {
   async hashData(data: string): Promise<string> {
     const salt = await bcrypt.genSalt();
     return await bcrypt.hash(data, salt);
+  }
+
+  async compareHash(password: string, hashedPassword: string) {
+    return await bcrypt.compare(password, hashedPassword);
   }
 }
