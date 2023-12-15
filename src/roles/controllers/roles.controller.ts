@@ -51,28 +51,6 @@ export class RoleController {
     return this.roleService.updateRole(id, updateRoleDto);
   }
 
-  //   @Get(':id')
-  //   findByUserId(@Param('id') userId: string) {
-  //     return this.rolesService.findByUserId(userId);
-  //   }
-
-  //   @Patch('update/role/:id')
-  //   async update(
-  //     @Res() response,
-  //     @Param('id') id: string,
-  //     @Body() updateRoleDto: UpdateRoleDto,
-  //   ) {
-  //     try {
-  //       const existingRole = await this.roleService.update(id, updateRoleDto);
-  //       return response.status(HttpStatus.OK).json({
-  //         message: 'Role has been successfully updated',
-  //         existingRole,
-  //       });
-  //     } catch (err) {
-  //       return response.status(err.status).json(err.response);
-  //     }
-  //   }
-
   @Delete('delete-role/:id')
   remove(@Param('id') id: string) {
     return this.roleService.deleteRole(id);

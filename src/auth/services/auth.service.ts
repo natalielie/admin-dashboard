@@ -39,7 +39,7 @@ export class AuthService {
     const tokens = await this.getTokens(
       createdUser._id.toString(),
       createdUser.email,
-      createdUser.role,
+      createdUser.roleId,
     );
     await this.updateRefreshToken(
       createdUser._id.toString(),

@@ -10,7 +10,7 @@ import { User, UserDocument } from '../schema/user.schema';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { RoleService } from 'src/roles/services/roles.service';
-import { sanitize } from 'src/utils/sanitise.function';
+import { sanitize } from 'src/utils/sanitize.function';
 import { Payload } from 'src/auth/interfaces/auth.interface';
 
 @Injectable()
@@ -36,7 +36,8 @@ export class UsersService {
   /** find */
 
   async findByLogin(email: string): Promise<UserDocument> {
-    return this.userModel.findOne({ email }).exec();
+    const user = await this.userModel.findOne({ email }).exec();
+    return sanitize(user, ['password', 'refreshToken']);
   }
 
   async findByPayload(payload: Payload) {
@@ -45,11 +46,16 @@ export class UsersService {
   }
 
   async findAll(): Promise<UserDocument[]> {
-    return this.userModel.find().exec();
+    const users = await this.userModel.find().exec();
+    users.forEach((user) => {
+      sanitize(user, ['password', 'refreshToken']);
+    });
+    return users;
   }
 
   async findById(id: string): Promise<UserDocument> {
-    return this.userModel.findById({ _id: id });
+    const user = await this.userModel.findById({ _id: id });
+    return sanitize(user, ['password', 'refreshToken']);
   }
 
   async remove(id: string) {

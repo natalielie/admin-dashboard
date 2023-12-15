@@ -1,5 +1,4 @@
 import { IsEmail, IsNotEmpty, IsNumberString } from 'class-validator';
-import { Role } from 'src/roles/interfaces/role.interface';
 
 export class CreateUserDto {
   first_name: string;
@@ -9,7 +8,7 @@ export class CreateUserDto {
   @IsNumberString()
   age: number;
 
-  role: Role;
+  roleId: string;
 
   @IsEmail()
   email: string;
