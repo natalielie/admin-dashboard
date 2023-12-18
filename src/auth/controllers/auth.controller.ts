@@ -3,14 +3,14 @@ import { AuthService } from '../services/auth.service';
 import { LoginDto } from '../dto/loginDto';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UserDocument } from 'src/users/schema/user.schema';
-import { Tokens } from '../interfaces/auth.interfaces';
+import { Tokens } from '../interfaces/auth.interface';
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Post('signup')
-  signup(@Body() createUserDto: CreateUserDto): Promise<UserDocument> {
+  signup(@Body() createUserDto: CreateUserDto): Promise<Tokens> {
     return this.authService.signUp(createUserDto);
   }
 
@@ -37,6 +37,6 @@ export class AuthController {
 
   @Get('logout')
   logout(@Req() req: Request) {
-    this.authService.logout(req['sub']);
+    this.authService.logout(req);
   }
 }

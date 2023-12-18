@@ -17,6 +17,6 @@ import { ConfigService } from '@nestjs/config';
     RefreshTokenStrategy,
   ],
   controllers: [AuthController],
-  exports: [AuthService, JwtService, ConfigService],
+  exports: [AuthService, JwtService],
 })
 export class AuthModule {}

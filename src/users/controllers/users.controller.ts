@@ -23,16 +23,19 @@ export class UsersController {
   }
 
   @Get()
-  findAll() {
-    return this.usersService.findAll();
+  getAll() {
+    return this.usersService.getAll();
   }
 
   @Get(':id')
-  findById(@Param('id') id: string) {
-    return this.usersService.findById(id);
+  getById(@Param('id') id: string) {
+    return this.usersService.getById(id);
   }
 
   @Patch(':id')
+  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+    return this.usersService.update(id, updateUserDto);
+  }
   async updateUser(
     @Res() response,
     @Param('id') id: string,
