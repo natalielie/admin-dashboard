@@ -72,7 +72,7 @@ export class UsersService {
     if (!updatedUser) {
       throw new NotFoundException(`User #${id} not found`);
     }
-    return updatedUser;
+    return sanitize(updatedUser, ['password', 'refreshToken']);
   }
 
   /** delete */
