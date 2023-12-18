@@ -37,6 +37,6 @@ export class AuthController {
 
   @Get('logout')
   logout(@Req() req: Request) {
-    this.authService.logout(req['sub']);
+    this.authService.logout(req);
   }
 }

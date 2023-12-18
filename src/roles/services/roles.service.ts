@@ -9,6 +9,8 @@ import { Model, Schema } from 'mongoose';
 import { Role, RoleDocument } from '../schema/role.schema';
 import { UpdateRoleDto } from '../dto/update-Role.dto';
 import { ResponseHelper } from 'src/utils/response';
+import { UpdateResponseDto } from 'src/utils/dto/update-response.dto';
+import { DeleteResponseDto } from 'src/utils/dto/delete-response.dto';
 
 @Injectable()
 export class RoleService {
@@ -16,13 +18,17 @@ export class RoleService {
 
   /** create */
 
-  async create(createRoleDTO: CreateRoleDto) {
+  async create(createRoleDTO: CreateRoleDto): Promise<RoleDocument> {
     await this.canAddRole(createRoleDTO);
     const newRole = new this.roleModel(createRoleDTO);
     return await newRole.save();
   }
 
   /** get */
+
+  async findByTitle(title: string): Promise<RoleDocument> {
+    return this.roleModel.findOne({ title: title });
+  }
 
   async getRoleById(id: string | Schema.Types.ObjectId): Promise<RoleDocument> {
     const role = await this.roleModel.findById(id);
@@ -39,11 +45,11 @@ export class RoleService {
 
   /** delete */
 
-  async deleteRole(title: string) {
+  async deleteRole(title: string): Promise<DeleteResponseDto> {
     const filter = { title: title };
 
-    const deleted = await this.roleModel.deleteOne(filter);
-    return deleted;
+    const deletedRole = await this.roleModel.deleteOne(filter);
+    return ResponseHelper.deleteResponse(deletedRole ? true : false);
   }
 
   /** update */
@@ -51,7 +57,7 @@ export class RoleService {
   public async updateRole(
     id: string | Schema.Types.ObjectId,
     updateRoleDto: UpdateRoleDto,
-  ) {
+  ): Promise<UpdateResponseDto> {
     await this.getRoleById(id);
 
     const updatedRole = await this.roleModel.findByIdAndUpdate(
@@ -62,15 +68,11 @@ export class RoleService {
     return ResponseHelper.updateResponse(updatedRole ? true : false, id);
   }
 
-  private async canAddRole(createRoleDTO: CreateRoleDto) {
+  private async canAddRole(createRoleDTO: CreateRoleDto): Promise<boolean> {
     const role = await this.findByTitle(createRoleDTO.title);
     if (role) {
       throw new BadRequestException(`Role ${role.title} already exists.`);
     }
     return true;
-  }
-
-  private async findByTitle(title: string): Promise<RoleDocument> {
-    return this.roleModel.findOne({ title: title });
   }
 }

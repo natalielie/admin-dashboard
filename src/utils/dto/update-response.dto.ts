@@ -1,6 +1,6 @@
 import { ApiResponseProperty } from '@nestjs/swagger';
 
-export class UpdateResponseDTO {
+export class UpdateResponseDto {
   @ApiResponseProperty()
   id: string;
 

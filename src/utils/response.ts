@@ -1,6 +1,6 @@
 import { Schema } from 'mongoose';
-import { DeleteResponseDTO } from './dto/delete-response.dto';
-import { UpdateResponseDTO } from './dto/update-response.dto';
+import { DeleteResponseDto } from './dto/delete-response.dto';
+import { UpdateResponseDto } from './dto/update-response.dto';
 
 export class ResponseHelper {
   public static updateResponse(
@@ -8,7 +8,7 @@ export class ResponseHelper {
     id?: string | Schema.Types.ObjectId,
     message?: string,
   ) {
-    const response = new UpdateResponseDTO(id ? String(id) : null);
+    const response = new UpdateResponseDto(id ? String(id) : null);
     response.isUpdated = isUpdated;
     response.message = isUpdated
       ? message || 'Successfully updated.'
@@ -18,7 +18,7 @@ export class ResponseHelper {
   }
 
   public static deleteResponse(isDeleted: boolean, message?: string) {
-    const response = new DeleteResponseDTO();
+    const response = new DeleteResponseDto();
 
     response.isDeleted = isDeleted;
     response.message = isDeleted

@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ForbiddenException,
   Injectable,
+  Res,
 } from '@nestjs/common';
 import { UsersService } from '../../users/services/users.service';
 import * as bcrypt from 'bcrypt';
@@ -21,11 +22,11 @@ export class AuthService {
   ) {}
 
   async validateUser(payload: Payload): Promise<UserDocument | undefined> {
-    return await this.userService.findByPayload(payload);
+    return await this.userService.getByPayload(payload);
   }
 
   async signUp(createUserDto: CreateUserDto): Promise<Tokens> {
-    const userExists = await this.userService.findByLogin(createUserDto.email);
+    const userExists = await this.userService.getByLogin(createUserDto.email);
     if (userExists) {
       throw new BadRequestException('User already exists');
     }
@@ -49,7 +50,7 @@ export class AuthService {
   }
 
   async signIn(data: LoginDto): Promise<Tokens> {
-    const user = await this.userService.findByLogin(data.email);
+    const user = await this.userService.getByLogin(data.email);
     if (!user) {
       throw new BadRequestException('User does not exist');
     }
@@ -70,8 +71,9 @@ export class AuthService {
     return tokens;
   }
 
-  async logout(userId: string): Promise<UserDocument> {
-    return this.userService.update(userId, { refreshToken: null });
+  async logout(@Res({ passthrough: true }) res): Promise<UserDocument> {
+    res.cookie('token', '', { expires: new Date() });
+    return this.userService.update(res['sub'], { refreshToken: null });
   }
 
   async resetPassword(
@@ -79,7 +81,7 @@ export class AuthService {
     currentPassword: string,
     newPassword: string,
   ): Promise<UserDocument> {
-    const user = await this.userService.findById(userId);
+    const user = await this.userService.getById(userId);
     if (!user) {
       throw new BadRequestException('User does not exist');
     }
@@ -110,7 +112,7 @@ export class AuthService {
   }
 
   async refreshTokens(userId: string, refreshToken: string): Promise<Tokens> {
-    const user = await this.userService.findById(userId);
+    const user = await this.userService.getById(userId);
     if (!user || !user.refreshToken) {
       throw new ForbiddenException('Access Denied');
     }
