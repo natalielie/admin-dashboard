@@ -1,22 +1,46 @@
-import { Body, Controller, Get, Param, Patch, Post, Req } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Req,
+  Res,
+} from '@nestjs/common';
+import { Request, Response } from 'express';
 import { AuthService } from '../services/auth.service';
 import { LoginDto } from '../dto/loginDto';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UserDocument } from 'src/users/schema/user.schema';
 import { Tokens } from '../interfaces/auth.interface';
+import { Public } from 'src/decorators/public.decorator';
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
+  @Public()
   @Post('signup')
   signup(@Body() createUserDto: CreateUserDto): Promise<Tokens> {
     return this.authService.signUp(createUserDto);
   }
 
+  @Public()
   @Post('signin')
-  signin(@Body() data: LoginDto): Promise<Tokens> {
-    return this.authService.signIn(data);
+  async signin(
+    @Body() data: LoginDto,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<Tokens> {
+    const tokens = await this.authService.signIn(data);
+    res
+      .cookie('user_tokens', tokens, {
+        httpOnly: true,
+        secure: false,
+        sameSite: 'lax',
+      })
+      .send({ status: 'ok' });
+    return tokens;
   }
 
   @Patch('reset-token/:id')

@@ -37,7 +37,7 @@ export class UsersService {
 
   async getByLogin(email: string): Promise<UserDocument> {
     const user = await this.userModel.findOne({ email }).exec();
-    return sanitize(user, ['password', 'refreshToken']);
+    return user;
   }
 
   async getByPayload(payload: Payload): Promise<UserDocument> {

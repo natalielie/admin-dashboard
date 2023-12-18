@@ -73,7 +73,10 @@ export class AuthService {
 
   async logout(@Res({ passthrough: true }) res): Promise<UserDocument> {
     res.cookie('token', '', { expires: new Date() });
-    return this.userService.update(res['sub'], { refreshToken: null });
+    return this.userService.update(res['sub'], {
+      refreshToken: null,
+      accessToken: null,
+    });
   }
 
   async resetPassword(
