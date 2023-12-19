@@ -15,7 +15,9 @@ import { CreateUserDto } from '../dto/create-user.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
 import { sanitize } from 'src/utils/sanitize.function';
-import { AdminRoleGuard } from 'src/auth/guards/admin-role.guard';
+import { RoleGuard } from 'src/auth/guards/role.guard';
+import { Roles } from 'src/decorators/roles.decorator';
+import { Role } from 'src/utils/role.enum';
 
 @UseGuards(AuthGuard)
 @Controller('users')
@@ -59,8 +61,9 @@ export class UsersController {
     }
   }
 
-  @UseGuards(AdminRoleGuard)
   @Delete(':id')
+  @Roles(Role.Admin)
+  @UseGuards(RoleGuard)
   remove(@Param('id') id: string) {
     return this.usersService.remove(id);
   }

@@ -12,15 +12,18 @@ import { RoleService } from '../services/roles.service';
 import { UpdateRoleDto } from 'src/Roles/dto/update-Role.dto';
 import { CreateRoleDto } from '../dto/create-Role.dto';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
-import { AdminRoleGuard } from 'src/auth/guards/admin-role.guard';
+import { RoleGuard } from 'src/auth/guards/role.guard';
+import { Roles } from 'src/decorators/roles.decorator';
+import { Role } from 'src/utils/role.enum';
 
-@UseGuards(AuthGuard)
 @Controller('roles')
+@UseGuards(AuthGuard)
 export class RoleController {
   constructor(private roleService: RoleService) {}
 
-  @UseGuards(AdminRoleGuard)
   @Post('create/role')
+  @Roles(Role.Admin)
+  @UseGuards(RoleGuard)
   async create(@Body() createRoleDto: CreateRoleDto) {
     this.roleService.create(createRoleDto);
   }
@@ -43,8 +46,9 @@ export class RoleController {
     return this.roleService.updateRole(id, updateRoleDto);
   }
 
-  @UseGuards(AdminRoleGuard)
   @Delete('delete-role/:id')
+  @Roles(Role.Admin)
+  @UseGuards(RoleGuard)
   remove(@Param('id') id: string) {
     return this.roleService.deleteRole(id);
   }
