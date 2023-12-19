@@ -11,15 +11,15 @@ import {
 import { RoleService } from '../services/roles.service';
 import { UpdateRoleDto } from 'src/Roles/dto/update-Role.dto';
 import { CreateRoleDto } from '../dto/create-Role.dto';
-import { RoleGuard } from 'src/auth/guards/role.guard';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
+import { AdminRoleGuard } from 'src/auth/guards/admin-role.guard';
 
 @UseGuards(AuthGuard)
 @Controller('roles')
 export class RoleController {
   constructor(private roleService: RoleService) {}
 
-  @UseGuards(RoleGuard)
+  @UseGuards(AdminRoleGuard)
   @Post('create/role')
   async create(@Body() createRoleDto: CreateRoleDto) {
     this.roleService.create(createRoleDto);
@@ -43,7 +43,7 @@ export class RoleController {
     return this.roleService.updateRole(id, updateRoleDto);
   }
 
-  @UseGuards(RoleGuard)
+  @UseGuards(AdminRoleGuard)
   @Delete('delete-role/:id')
   remove(@Param('id') id: string) {
     return this.roleService.deleteRole(id);

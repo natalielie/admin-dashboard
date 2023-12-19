@@ -6,25 +6,24 @@ import {
 } from '@nestjs/common';
 import { RoleService } from 'src/roles/services/roles.service';
 import { extractJWT } from '../strategies/extract-jwt.function';
-import { UsersService } from 'src/users/services/users.service';
-import { compareHash } from 'src/utils/hash.functions';
+import { JwtService } from '@nestjs/jwt';
+import { JwtPayload } from 'jsonwebtoken';
 
 @Injectable()
-export class RoleGuard implements CanActivate {
+export class AdminRoleGuard implements CanActivate {
   constructor(
-    private readonly userService: UsersService,
     private readonly roleService: RoleService,
+    private jwtService: JwtService,
   ) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const tokens = extractJWT(request);
-    const users = await this.userService.getAll();
-    const currentUser = users.find((user) =>
-      compareHash(tokens.refreshToken, user.refreshToken),
+    const decodedJwtToken: JwtPayload = this.jwtService.decode(
+      tokens.refreshToken,
     );
     const roles = await this.roleService.getAllRoles();
     const currentRole = roles.find(
-      (role) => role._id.toString() === currentUser.roleId.toString(),
+      (role) => role._id.toString() === decodedJwtToken.role,
     );
     if (currentRole.title === 'Admin') {
       return true;

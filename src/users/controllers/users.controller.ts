@@ -14,7 +14,8 @@ import { UsersService } from '../services/users.service';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
-import { RoleGuard } from 'src/auth/guards/role.guard';
+import { sanitize } from 'src/utils/sanitize.function';
+import { AdminRoleGuard } from 'src/auth/guards/admin-role.guard';
 
 @UseGuards(AuthGuard)
 @Controller('users')
@@ -27,18 +28,18 @@ export class UsersController {
   }
 
   @Get()
-  getAll() {
-    return this.usersService.getAll();
+  async getAll() {
+    const users = await this.usersService.getAll();
+    users.forEach((user) => {
+      sanitize(user, ['password', 'refreshToken']);
+    });
+    return users;
   }
 
   @Get(':id')
-  getById(@Param('id') id: string) {
-    return this.usersService.getById(id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(id, updateUserDto);
+  async getById(@Param('id') id: string) {
+    const user = await this.usersService.getById(id);
+    return sanitize(user, ['password', 'refreshToken']);
   }
 
   @Patch(':id')
@@ -58,7 +59,7 @@ export class UsersController {
     }
   }
 
-  @UseGuards(RoleGuard)
+  @UseGuards(AdminRoleGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.usersService.remove(id);

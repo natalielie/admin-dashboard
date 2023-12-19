@@ -51,9 +51,6 @@ export class UsersService {
 
   async getAll(): Promise<UserDocument[]> {
     const users = await this.userModel.find().exec();
-    users.forEach((user) => {
-      sanitize(user, ['password', 'refreshToken']);
-    });
     return users;
   }
 

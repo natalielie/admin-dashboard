@@ -45,8 +45,8 @@ export class RoleService {
 
   /** delete */
 
-  async deleteRole(title: string): Promise<DeleteResponseDto> {
-    const filter = { title: title };
+  async deleteRole(id: string): Promise<DeleteResponseDto> {
+    const filter = { _id: id };
 
     const deletedRole = await this.roleModel.deleteOne(filter);
     return ResponseHelper.deleteResponse(deletedRole ? true : false);
