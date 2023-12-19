@@ -14,6 +14,7 @@ import { UsersService } from '../services/users.service';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
+import { RoleGuard } from 'src/auth/guards/role.guard';
 
 @UseGuards(AuthGuard)
 @Controller('users')
@@ -57,6 +58,7 @@ export class UsersController {
     }
   }
 
+  @UseGuards(RoleGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.usersService.remove(id);

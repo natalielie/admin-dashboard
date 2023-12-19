@@ -5,7 +5,6 @@ import {
   Res,
 } from '@nestjs/common';
 import { UsersService } from '../../users/services/users.service';
-import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
@@ -13,6 +12,7 @@ import { LoginDto } from '../dto/loginDto';
 import { jwtConstants } from '../constants';
 import { UserDocument } from 'src/users/schema/user.schema';
 import { Payload, Tokens } from '../interfaces/auth.interface';
+import { compareHash, hashData } from 'src/utils/hash.functions';
 
 @Injectable()
 export class AuthService {
@@ -31,11 +31,8 @@ export class AuthService {
       throw new BadRequestException('User already exists');
     }
 
-    const hash = await this.hashData(createUserDto.password);
-    const createdUser = await this.userService.create({
-      ...createUserDto,
-      password: hash,
-    });
+    // const hash = await hashData(createUserDto.password);
+    const createdUser = await this.userService.create(createUserDto);
 
     const tokens = await this.getTokens(
       createdUser._id.toString(),
@@ -55,10 +52,7 @@ export class AuthService {
       throw new BadRequestException('User does not exist');
     }
 
-    const passwordMatches = await this.compareHash(
-      data.password,
-      user.password,
-    );
+    const passwordMatches = await compareHash(data.password, user.password);
     if (!passwordMatches)
       throw new BadRequestException('Password is incorrect');
 
@@ -89,14 +83,11 @@ export class AuthService {
       throw new BadRequestException('User does not exist');
     }
 
-    const passwordMatches = await this.compareHash(
-      currentPassword,
-      user.password,
-    );
+    const passwordMatches = await compareHash(currentPassword, user.password);
     if (!passwordMatches) {
       throw new BadRequestException('Password is incorrect');
     } else {
-      const hash = await this.hashData(newPassword);
+      const hash = await hashData(newPassword);
       const updatedUser = await this.userService.update(user._id.toString(), {
         password: hash,
       });
@@ -120,7 +111,7 @@ export class AuthService {
       throw new ForbiddenException('Access Denied');
     }
 
-    const refreshTokenMatches = await this.compareHash(
+    const refreshTokenMatches = await compareHash(
       refreshToken.toString(),
       user.refreshToken,
     );
@@ -139,7 +130,7 @@ export class AuthService {
     userId: string,
     refreshToken: string,
   ): Promise<void> {
-    const hashedRefreshToken = await this.hashData(refreshToken);
+    const hashedRefreshToken = await hashData(refreshToken);
     await this.userService.update(userId, { refreshToken: hashedRefreshToken });
   }
 
@@ -177,14 +168,5 @@ export class AuthService {
       accessToken,
       refreshToken,
     };
-  }
-
-  async hashData(data: string): Promise<string> {
-    const salt = await bcrypt.genSalt();
-    return await bcrypt.hash(data, salt);
-  }
-
-  async compareHash(password: string, hashedPassword: string) {
-    return await bcrypt.compare(password, hashedPassword);
   }
 }

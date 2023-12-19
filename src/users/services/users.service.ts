@@ -13,6 +13,7 @@ import { sanitize } from 'src/utils/sanitize.function';
 import { Payload } from 'src/auth/interfaces/auth.interface';
 import { ResponseHelper } from 'src/utils/response';
 import { DeleteResponseDto } from 'src/utils/dto/delete-response.dto';
+import { hashData } from 'src/utils/hash.functions';
 
 @Injectable()
 export class UsersService {
@@ -20,13 +21,16 @@ export class UsersService {
 
   /** create */
 
-  async create(createDTO: CreateUserDto): Promise<UserDocument> {
-    const { email } = createDTO;
+  async create(createUserDto: CreateUserDto): Promise<UserDocument> {
+    const { email } = createUserDto;
     const user = await this.userModel.findOne({ email });
     if (user) {
       throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
     }
-    const createdUser = new this.userModel(createDTO);
+
+    const hash = await hashData(createUserDto.password);
+    createUserDto.password = hash;
+    const createdUser = new this.userModel(createUserDto);
 
     await createdUser.save();
 
