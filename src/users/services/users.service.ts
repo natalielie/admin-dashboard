@@ -9,8 +9,6 @@ import { Model, Schema } from 'mongoose';
 import { User, UserDocument } from '../schema/user.schema';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { CreateUserDto } from '../dto/create-user.dto';
-import { sanitize } from 'src/utils/sanitize.function';
-import { Payload } from 'src/auth/interfaces/auth.interface';
 import { ResponseHelper } from 'src/utils/response';
 import { DeleteResponseDto } from 'src/utils/dto/delete-response.dto';
 import { hashData } from 'src/utils/hash.functions';
@@ -32,31 +30,25 @@ export class UsersService {
     createUserDto.password = hash;
     const createdUser = new this.userModel(createUserDto);
 
-    await createdUser.save();
-
-    return sanitize(createdUser, ['password', 'refreshToken']);
+    return await createdUser.save();
   }
 
   /** get */
 
-  async getByLogin(email: string): Promise<UserDocument> {
-    const user = await this.userModel.findOne({ email }).exec();
-    return user;
-  }
-
-  async getByPayload(payload: Payload): Promise<UserDocument> {
-    const { email } = payload.user;
+  async getByEmail(email: string): Promise<UserDocument> {
     return await this.userModel.findOne({ email });
   }
 
   async getAll(): Promise<UserDocument[]> {
-    const users = await this.userModel.find().exec();
-    return users;
+    return await this.userModel.find().exec();
   }
 
   async getById(id: string): Promise<UserDocument> {
     const user = await this.userModel.findById({ _id: id });
-    return sanitize(user, ['password', 'refreshToken']);
+    if (!user) {
+      throw new NotFoundException(`User #${id} not found`);
+    }
+    return user;
   }
 
   /** update */

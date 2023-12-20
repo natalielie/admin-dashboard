@@ -24,9 +24,10 @@ import { Role } from 'src/utils/role.enum';
 export class UsersController {
   constructor(private usersService: UsersService) {}
 
-  @Post()
+  @Post('create/user')
   async create(@Body() createUserDto: CreateUserDto) {
-    this.usersService.create(createUserDto);
+    const user = await this.usersService.create(createUserDto);
+    return sanitize(user, ['password', 'refreshToken']);
   }
 
   @Get()

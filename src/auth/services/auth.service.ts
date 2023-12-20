@@ -22,16 +22,15 @@ export class AuthService {
   ) {}
 
   async validateUser(payload: Payload): Promise<UserDocument | undefined> {
-    return await this.userService.getByPayload(payload);
+    return await this.userService.getByEmail(payload.user.email);
   }
 
   async signUp(createUserDto: CreateUserDto): Promise<Tokens> {
-    const userExists = await this.userService.getByLogin(createUserDto.email);
+    const userExists = await this.userService.getByEmail(createUserDto.email);
     if (userExists) {
       throw new BadRequestException('User already exists');
     }
 
-    // const hash = await hashData(createUserDto.password);
     const createdUser = await this.userService.create(createUserDto);
 
     const tokens = await this.getTokens(
@@ -47,7 +46,7 @@ export class AuthService {
   }
 
   async signIn(data: LoginDto): Promise<Tokens> {
-    const user = await this.userService.getByLogin(data.email);
+    const user = await this.userService.getByEmail(data.email);
     if (!user) {
       throw new BadRequestException('User does not exist');
     }
@@ -79,10 +78,6 @@ export class AuthService {
     newPassword: string,
   ): Promise<UserDocument> {
     const user = await this.userService.getById(userId);
-    if (!user) {
-      throw new BadRequestException('User does not exist');
-    }
-
     const passwordMatches = await compareHash(currentPassword, user.password);
     if (!passwordMatches) {
       throw new BadRequestException('Password is incorrect');
