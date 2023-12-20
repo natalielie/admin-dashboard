@@ -6,6 +6,7 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { RolesModule } from './roles/roles.module';
 import 'dotenv/config';
+import { PostModule } from './posts/post.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import 'dotenv/config';
     UsersModule,
     AuthModule,
     RolesModule,
+    PostModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -29,7 +29,10 @@ export class PostService {
         HttpStatus.BAD_REQUEST,
       );
     }
-    const createdPost = new this.postModel(createPostDto);
+    const createdPost = new this.postModel({
+      ...createPostDto,
+      date: new Date(),
+    });
 
     return await createdPost.save();
   }
