@@ -1,12 +1,13 @@
 import { Request as RequestType } from 'express';
+import { Tokens } from '../interfaces/auth.interface';
 
-export function extractJWT(req: RequestType): string | null {
+export function extractJWT(req: RequestType): Tokens | null {
   if (
     req.cookies &&
-    'token' in req.cookies &&
-    req.cookies.user_token.length > 0
+    'user_tokens' in req.cookies &&
+    Object.keys(req.cookies.user_tokens).length > 0
   ) {
-    return req.cookies.token;
+    return req.cookies.user_tokens;
   }
   return null;
 }

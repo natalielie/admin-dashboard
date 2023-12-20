@@ -5,7 +5,7 @@ export type RoleDocument = Role & Document;
 
 @Schema()
 export class Role {
-  id: ObjectId;
+  _id: ObjectId;
 
   @Prop({ required: true, unique: true, type: String })
   title: string;
