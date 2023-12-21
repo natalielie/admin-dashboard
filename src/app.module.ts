@@ -7,14 +7,22 @@ import { AuthModule } from './auth/auth.module';
 import { RolesModule } from './roles/roles.module';
 import 'dotenv/config';
 import { PostModule } from './posts/post.module';
+import { ContentModule } from './content/content.module';
+import { AwsModule } from './aws-upload/aws.module';
+import { MulterModule } from '@nestjs/platform-express';
 
 @Module({
   imports: [
     MongooseModule.forRoot(process.env.MONGO_CONNECTION_STRING),
+    MulterModule.register({
+      dest: './files',
+    }),
     UsersModule,
     AuthModule,
     RolesModule,
     PostModule,
+    ContentModule,
+    AwsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

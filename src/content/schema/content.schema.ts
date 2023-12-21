@@ -7,11 +7,11 @@ export type ContentDocument = Content & Document;
 
 @Schema()
 export class Content {
-  @Prop()
-  source: string;
-
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Parent' })
   parent: Post | User;
+
+  @Prop()
+  awsKey: string;
 }
 
 export const ContentSchema = SchemaFactory.createForClass(Content);

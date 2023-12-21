@@ -9,10 +9,10 @@ import {
   Patch,
   Post,
   Res,
+  UploadedFile,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
-import { CreateContentDto } from '../dto/create-content.dto';
 import { UpdateContentDto } from '../dto/update-content.dto';
 import { ContentService } from '../services/content.service';
 
@@ -22,8 +22,11 @@ export class ContentController {
   constructor(private contentService: ContentService) {}
 
   @Post('create/content')
-  async create(@Body() createContentDto: CreateContentDto) {
-    return await this.contentService.create(createContentDto);
+  async create(
+    @UploadedFile() file: Express.Multer.File,
+    //@Body() parent: string,
+  ) {
+    return await this.contentService.create(file);
   }
 
   @Get()

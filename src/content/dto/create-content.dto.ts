@@ -1,10 +1,7 @@
-import { IsNotEmpty } from 'class-validator';
 import { ObjectId } from 'mongoose';
 
 export class CreateContentDto {
-  @IsNotEmpty()
-  source: string;
+  source: Express.Multer.File;
 
-  @IsNotEmpty()
   parent: string | ObjectId;
 }

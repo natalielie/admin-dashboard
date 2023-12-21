@@ -76,4 +76,14 @@ export class UsersService {
     const deletedUser = await this.userModel.deleteOne(filter);
     return ResponseHelper.deleteResponse(deletedUser ? true : false);
   }
+
+  // async addAvatar(userId: string, imageBuffer: Buffer, filename: string) {
+  //   const avatar = await this.awsService.uploadPublicFile(imageBuffer, filename);
+  //   const user = await this.getById(userId);
+  //   // await this.usersRepository.update(userId, {
+  //   //   ...user,
+  //   //   avatar
+  //   // });
+  //   return avatar;
+  //}
 }
