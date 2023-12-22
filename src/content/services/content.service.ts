@@ -5,7 +5,7 @@ import { ResponseHelper } from 'src/utils/response';
 import { DeleteResponseDto } from 'src/utils/dto/delete-response.dto';
 import { Content, ContentDocument } from '../schema/content.schema';
 import { UpdateResponseDto } from 'src/utils/dto/update-response.dto';
-import { AwsService } from '../../aws-upload/aws.service';
+import { AwsService } from '../../aws-upload/services/aws.service';
 import { ContentWithFile } from '../interfaces/content-with-file.interface';
 
 @Injectable()
@@ -62,7 +62,9 @@ export class ContentService {
     const filter = { _id: id };
 
     const chosenContent = await this.getContentById(id);
-
+    if (!chosenContent) {
+      throw new NotFoundException(`Content does not exist.`);
+    }
     await this.awsService.deleteFile(chosenContent.content.awsKey);
 
     const deletedContent = await this.contentModel.deleteOne(filter);

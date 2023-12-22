@@ -11,7 +11,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { AwsService } from './aws.service';
+import { AwsService } from '../services/aws.service';
 import { RoleGuard } from 'src/auth/guards/role.guard';
 import { Roles } from 'src/decorators/roles.decorator';
 import { Role } from 'src/utils/role.enum';

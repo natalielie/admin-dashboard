@@ -45,12 +45,16 @@ export class AwsService {
   }
 
   async deleteFile(key: string) {
-    await this.s3
-      .deleteObject({
-        Bucket: AWS_BUCKET_NAME,
-        Key: key,
-      })
-      .promise();
+    try {
+      await this.s3
+        .deleteObject({
+          Bucket: AWS_BUCKET_NAME,
+          Key: key,
+        })
+        .promise();
+    } catch (error) {
+      throw new BadRequestException(error);
+    }
   }
 
   async getFile(key: string) {
@@ -62,7 +66,7 @@ export class AwsService {
       };
       return await this.s3.getSignedUrlPromise('getObject', params);
     } catch (error) {
-      throw error;
+      throw new BadRequestException(error);
     }
   }
 }
