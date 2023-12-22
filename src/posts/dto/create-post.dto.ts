@@ -1,4 +1,5 @@
 import { IsNotEmpty } from 'class-validator';
+import { ObjectId } from 'mongoose';
 
 export class CreatePostDto {
   @IsNotEmpty()
@@ -6,4 +7,7 @@ export class CreatePostDto {
 
   @IsNotEmpty()
   body: string;
+
+  @IsNotEmpty()
+  author: string | ObjectId;
 }

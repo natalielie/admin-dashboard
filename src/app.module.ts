@@ -14,9 +14,11 @@ import { MulterModule } from '@nestjs/platform-express';
 @Module({
   imports: [
     MongooseModule.forRoot(process.env.MONGO_CONNECTION_STRING),
-    MulterModule.register({
-      dest: './files',
-    }),
+    // MulterModule.registerAsync({
+    //   useFactory: () => ({
+    //     dest: './upload',
+    //   }),
+    // }),
     UsersModule,
     AuthModule,
     RolesModule,

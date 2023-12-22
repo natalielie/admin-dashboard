@@ -11,10 +11,15 @@ import {
   Res,
   UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
-import { UpdateContentDto } from '../dto/update-content.dto';
 import { ContentService } from '../services/content.service';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { fileFilter } from 'src/utils/multer/constants';
+import { RoleGuard } from 'src/auth/guards/role.guard';
+import { Roles } from 'src/decorators/roles.decorator';
+import { Role } from 'src/utils/role.enum';
 
 @UseGuards(AuthGuard)
 @Controller('content')
@@ -22,18 +27,24 @@ export class ContentController {
   constructor(private contentService: ContentService) {}
 
   @Post('create/content')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      fileFilter: fileFilter,
+    }),
+  )
   async create(
-    @UploadedFile() file: Express.Multer.File,
-    //@Body() parent: string,
+    @UploadedFile()
+    file: Express.Multer.File,
+    @Body() id: string,
   ) {
-    return await this.contentService.create(file);
+    return await this.contentService.create(file, id);
   }
 
   @Get()
-  async getAllContents() {
+  async getAllContentInfo() {
     const Contents = await this.contentService.getAllContent();
     if (!Contents) {
-      throw new NotFoundException('Contents not found');
+      throw new NotFoundException('Content not found');
     }
     return Contents;
   }
@@ -48,16 +59,19 @@ export class ContentController {
   }
 
   @Patch(':id')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      fileFilter: fileFilter,
+    }),
+  )
   async updateContent(
     @Res() response,
     @Param('id') id: string,
-    @Body() updateContentDto: UpdateContentDto,
+    @UploadedFile()
+    file: Express.Multer.File,
   ) {
     try {
-      const existingContent = await this.contentService.updateContent(
-        id,
-        updateContentDto,
-      );
+      const existingContent = await this.contentService.updateContent(id, file);
       return response.status(HttpStatus.OK).json({
         message: 'Content has been successfully updated',
         existingContent,
@@ -67,6 +81,8 @@ export class ContentController {
     }
   }
 
+  @Roles(Role.Admin)
+  @UseGuards(RoleGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.contentService.deleteContent(id);

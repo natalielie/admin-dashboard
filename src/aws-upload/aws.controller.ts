@@ -1,36 +1,35 @@
-// file: aws-s3 > src > app.controller.ts
 import {
   Controller,
   Delete,
   FileTypeValidator,
+  Get,
   Param,
   ParseFilePipe,
   Post,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AwsService } from './aws.service';
-import { diskStorage } from 'multer';
+import { RoleGuard } from 'src/auth/guards/role.guard';
+import { Roles } from 'src/decorators/roles.decorator';
+import { Role } from 'src/utils/role.enum';
 
+@Roles(Role.Admin)
+@UseGuards(RoleGuard)
 @Controller('aws')
 export class AwsController {
   constructor(private readonly awsService: AwsService) {}
 
   @Post('upload')
-  @UseInterceptors(
-    FileInterceptor('file', {
-      storage: diskStorage({
-        destination: './files',
-      }),
-    }),
-  )
+  @UseInterceptors(FileInterceptor('file'))
   uploadFile(
     @UploadedFile(
       new ParseFilePipe({
         validators: [
           new FileTypeValidator({
-            fileType: '/.(gif|jpe?g|png|svg|mp4)$/i',
+            fileType: '.(png|jpeg|jpg)',
           }),
         ],
       }),
@@ -40,9 +39,15 @@ export class AwsController {
     return this.awsService.uploadFile(file);
   }
 
-  @Delete('delete/:id')
+  @Get(':key')
   @UseInterceptors(FileInterceptor('file'))
-  deleteFile(@Param() id: string) {
-    return this.awsService.deleteFile(id);
+  getFileByKey(@Param() key: string) {
+    return this.awsService.getFile(key);
+  }
+
+  @Delete(':key')
+  @UseInterceptors(FileInterceptor('file'))
+  deleteFile(@Param() key: string) {
+    return this.awsService.deleteFile(key);
   }
 }

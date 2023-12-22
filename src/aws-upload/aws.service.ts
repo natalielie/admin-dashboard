@@ -14,7 +14,6 @@ export class AwsService {
   });
 
   async uploadFile(file) {
-    console.log(file);
     const { originalname } = file;
 
     return await this.s3_upload(
@@ -52,5 +51,18 @@ export class AwsService {
         Key: key,
       })
       .promise();
+  }
+
+  async getFile(key: string) {
+    try {
+      const params = {
+        Bucket: AWS_BUCKET_NAME,
+        Key: key,
+        Expires: 300,
+      };
+      return await this.s3.getSignedUrlPromise('getObject', params);
+    } catch (error) {
+      throw error;
+    }
   }
 }
