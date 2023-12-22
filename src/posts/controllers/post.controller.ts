@@ -45,7 +45,7 @@ export class PostController {
   }
 
   @Patch(':id')
-  async updatepost(
+  async updatePost(
     @Res() response,
     @Param('id') id: string,
     @Body() updatePostDto: UpdatePostDto,

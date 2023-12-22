@@ -13,10 +13,14 @@ import { ResponseHelper } from 'src/utils/response';
 import { DeleteResponseDto } from 'src/utils/dto/delete-response.dto';
 import { PostDocument } from '../schema/post.schema';
 import { UpdateResponseDto } from 'src/utils/dto/update-response.dto';
+import { ContentService } from 'src/content/services/content.service';
 
 @Injectable()
 export class PostService {
-  constructor(@InjectModel(Post.name) private postModel: Model<PostDocument>) {}
+  constructor(
+    @InjectModel(Post.name) private postModel: Model<PostDocument>,
+    private readonly contentService: ContentService,
+  ) {}
 
   /** create */
 
@@ -60,6 +64,13 @@ export class PostService {
 
   async deletePost(id: string): Promise<DeleteResponseDto> {
     const filter = { _id: id };
+
+    const attachedFileId = await this.contentService.getIdByParent(
+      id.toString(),
+    );
+    if (attachedFileId) {
+      await this.contentService.deleteContent(attachedFileId);
+    }
 
     const deletedPost = await this.postModel.deleteOne(filter);
     return ResponseHelper.deleteResponse(deletedPost ? true : false);

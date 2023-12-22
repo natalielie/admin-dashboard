@@ -25,7 +25,7 @@ export class ContentService {
 
     const createdContent = new this.contentModel({
       awsKey: awsKey,
-      parent: id[0],
+      parent: id,
     });
     return await createdContent.save();
   }
@@ -46,6 +46,14 @@ export class ContentService {
 
   async getAllContent(): Promise<ContentWithFile[]> {
     return await this.contentModel.find();
+  }
+
+  async getIdByParent(parentId: string): Promise<string> {
+    const content = await this.contentModel.findOne({ parent: parentId });
+    if (!content) {
+      throw new NotFoundException(`Content does not exist.`);
+    }
+    return content._id.toString();
   }
 
   /** delete */
