@@ -12,10 +12,14 @@ import { CreateUserDto } from '../dto/create-user.dto';
 import { ResponseHelper } from 'src/utils/response';
 import { DeleteResponseDto } from 'src/utils/dto/delete-response.dto';
 import { hashData } from 'src/utils/hash.functions';
+import { ContentService } from 'src/content/services/content.service';
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
+  constructor(
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
+    private readonly contentService: ContentService,
+  ) {}
 
   /** create */
 
@@ -73,7 +77,25 @@ export class UsersService {
   async remove(id: string | Schema.Types.ObjectId): Promise<DeleteResponseDto> {
     const filter = { _id: id };
 
+    const attachedFileId = await this.contentService.getIdByParent(
+      id.toString(),
+    );
+    if (attachedFileId) {
+      await this.contentService.deleteContent(attachedFileId);
+    }
+
     const deletedUser = await this.userModel.deleteOne(filter);
+
     return ResponseHelper.deleteResponse(deletedUser ? true : false);
   }
+
+  // async addAvatar(userId: string, imageBuffer: Buffer, filename: string) {
+  //   const avatar = await this.awsService.uploadPublicFile(imageBuffer, filename);
+  //   const user = await this.getById(userId);
+  //   // await this.usersRepository.update(userId, {
+  //   //   ...user,
+  //   //   avatar
+  //   // });
+  //   return avatar;
+  //}
 }

@@ -27,11 +27,7 @@ export class RoleService {
   /** get */
 
   async findByTitle(title: string): Promise<RoleDocument> {
-    const role = this.roleModel.findOne({ title: title });
-    if (!role) {
-      throw new NotFoundException(`Role does not exist.`);
-    }
-    return role;
+    return this.roleModel.findOne({ title: title });
   }
 
   async getRoleById(id: string | Schema.Types.ObjectId): Promise<RoleDocument> {
@@ -44,11 +40,7 @@ export class RoleService {
   }
 
   async getAllRoles(): Promise<RoleDocument[]> {
-    const role = this.roleModel.find();
-    if (!role) {
-      throw new NotFoundException(`Role does not exist.`);
-    }
-    return role;
+    return this.roleModel.find();
   }
 
   /** delete */
