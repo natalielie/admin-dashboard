@@ -5,7 +5,6 @@ import {
   Get,
   HttpStatus,
   Param,
-  Patch,
   Post,
   Res,
   UseGuards,
@@ -18,12 +17,14 @@ import { sanitize } from 'src/utils/sanitize.function';
 import { RoleGuard } from 'src/auth/guards/role.guard';
 import { Roles } from 'src/decorators/roles.decorator';
 import { Role } from 'src/utils/role.enum';
+import { ApiBody } from '@nestjs/swagger';
 
 @UseGuards(AuthGuard)
 @Controller('users')
 export class UsersController {
   constructor(private usersService: UsersService) {}
 
+  @ApiBody({ type: [CreateUserDto] })
   @Post('create/user')
   async create(@Body() createUserDto: CreateUserDto) {
     const user = await this.usersService.create(createUserDto);

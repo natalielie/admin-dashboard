@@ -15,12 +15,14 @@ import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UserDocument } from 'src/users/schema/user.schema';
 import { Tokens } from '../interfaces/auth.interface';
 import { Public } from 'src/decorators/public.decorator';
+import { ApiBody } from '@nestjs/swagger';
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Public()
+  @ApiBody({ type: [CreateUserDto] })
   @Post('signup')
   signup(@Body() createUserDto: CreateUserDto): Promise<Tokens> {
     return this.authService.signUp(createUserDto);
@@ -28,6 +30,7 @@ export class AuthController {
 
   @Public()
   @Post('signin')
+  @ApiBody({ type: [LoginDto] })
   async signin(
     @Body() data: LoginDto,
     @Res({ passthrough: true }) res: Response,

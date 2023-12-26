@@ -15,12 +15,14 @@ import { PostService } from '../services/post.service';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
 import { CreatePostDto } from '../dto/create-post.dto';
 import { UpdatePostDto } from '../dto/update-post.dto';
+import { ApiBody } from '@nestjs/swagger';
 
 @UseGuards(AuthGuard)
 @Controller('posts')
 export class PostController {
   constructor(private postService: PostService) {}
 
+  @ApiBody({ type: [CreatePostDto] })
   @Post('create/post')
   async create(@Body() createPostDto: CreatePostDto) {
     return await this.postService.create(createPostDto);

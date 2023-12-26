@@ -8,6 +8,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   Res,
   UploadedFile,
   UseGuards,
@@ -20,12 +21,28 @@ import { fileFilter } from 'src/utils/multer/constants';
 import { RoleGuard } from 'src/auth/guards/role.guard';
 import { Roles } from 'src/decorators/roles.decorator';
 import { Role } from 'src/utils/role.enum';
+import { ApiBody, ApiConsumes } from '@nestjs/swagger';
 
 @UseGuards(AuthGuard)
 @Controller('content')
 export class ContentController {
   constructor(private contentService: ContentService) {}
 
+  @ApiBody({
+    required: true,
+    type: 'multipart/form-data',
+    schema: {
+      type: 'object',
+      properties: {
+        id: { type: 'string' },
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  @ApiConsumes('multipart/form-data')
   @Post('create/content')
   @UseInterceptors(
     FileInterceptor('file', {
@@ -59,6 +76,20 @@ export class ContentController {
   }
 
   @Patch(':id')
+  @ApiBody({
+    required: true,
+    type: 'multipart/form-data',
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  @ApiConsumes('multipart/form-data')
   @UseInterceptors(
     FileInterceptor('file', {
       fileFilter: fileFilter,
