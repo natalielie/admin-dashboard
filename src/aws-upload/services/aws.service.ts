@@ -1,16 +1,11 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import * as AWS from 'aws-sdk';
-import {
-  ACCESS_KEY_ID,
-  AWS_BUCKET_NAME,
-  SECRET_KEY,
-} from 'src/utils/constants';
 
 @Injectable()
 export class AwsService {
   s3 = new AWS.S3({
-    accessKeyId: ACCESS_KEY_ID,
-    secretAccessKey: SECRET_KEY,
+    accessKeyId: process.env.ACCESS_KEY_ID,
+    secretAccessKey: process.env.SECRET_KEY,
   });
 
   async uploadFile(file) {
@@ -18,7 +13,7 @@ export class AwsService {
 
     return await this.s3_upload(
       file.buffer,
-      AWS_BUCKET_NAME,
+      process.env.AWS_BUCKET_NAME,
       originalname,
       file.mimetype,
     );
@@ -48,7 +43,7 @@ export class AwsService {
     try {
       await this.s3
         .deleteObject({
-          Bucket: AWS_BUCKET_NAME,
+          Bucket: process.env.AWS_BUCKET_NAME,
           Key: key,
         })
         .promise();
@@ -60,7 +55,7 @@ export class AwsService {
   async getFile(key: string) {
     try {
       const params = {
-        Bucket: AWS_BUCKET_NAME,
+        Bucket: process.env.AWS_BUCKET_NAME,
         Key: key,
         Expires: 300,
       };
