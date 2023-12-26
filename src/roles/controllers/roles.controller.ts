@@ -9,8 +9,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { RoleService } from '../services/roles.service';
-import { UpdateRoleDto } from 'src/Roles/dto/update-Role.dto';
-import { CreateRoleDto } from '../dto/create-Role.dto';
+import { UpdateRoleDto } from 'src/Roles/dto/update-role.dto';
+import { CreateRoleDto } from '../dto/create-role.dto';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
 import { RoleGuard } from 'src/auth/guards/role.guard';
 import { Roles } from 'src/decorators/roles.decorator';

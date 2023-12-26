@@ -3,11 +3,11 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateRoleDto } from '../dto/create-Role.dto';
+import { CreateRoleDto } from '../dto/create-role.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Schema } from 'mongoose';
 import { Role, RoleDocument } from '../schema/role.schema';
-import { UpdateRoleDto } from '../dto/update-Role.dto';
+import { UpdateRoleDto } from '../dto/update-role.dto';
 import { ResponseHelper } from 'src/utils/response';
 import { UpdateResponseDto } from 'src/utils/dto/update-response.dto';
 import { DeleteResponseDto } from 'src/utils/dto/delete-response.dto';

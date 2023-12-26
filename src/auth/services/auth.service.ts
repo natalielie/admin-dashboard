@@ -8,7 +8,7 @@ import { UsersService } from '../../users/services/users.service';
 import { JwtService } from '@nestjs/jwt';
 
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
-import { LoginDto } from '../dto/loginDto';
+import { LoginDto } from '../dto/login-dto';
 import { jwtConstants } from '../constants';
 import { UserDocument } from 'src/users/schema/user.schema';
 import { Payload, Tokens } from '../interfaces/auth.interface';

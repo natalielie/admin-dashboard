@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { AuthService } from '../services/auth.service';
-import { LoginDto } from '../dto/loginDto';
+import { LoginDto } from '../dto/login-dto';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UserDocument } from 'src/users/schema/user.schema';
 import { Tokens } from '../interfaces/auth.interface';
