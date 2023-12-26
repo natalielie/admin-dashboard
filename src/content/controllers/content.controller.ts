@@ -8,7 +8,6 @@ import {
   Param,
   Patch,
   Post,
-  Query,
   Res,
   UploadedFile,
   UseGuards,
@@ -34,7 +33,6 @@ export class ContentController {
     schema: {
       type: 'object',
       properties: {
-        id: { type: 'string' },
         file: {
           type: 'string',
           format: 'binary',
@@ -43,7 +41,7 @@ export class ContentController {
     },
   })
   @ApiConsumes('multipart/form-data')
-  @Post('create/content')
+  @Post('create/content/:id')
   @UseInterceptors(
     FileInterceptor('file', {
       fileFilter: fileFilter,
@@ -52,7 +50,7 @@ export class ContentController {
   async create(
     @UploadedFile()
     file: Express.Multer.File,
-    @Body() id: string,
+    @Param() id: string,
   ) {
     return await this.contentService.create(file, id);
   }

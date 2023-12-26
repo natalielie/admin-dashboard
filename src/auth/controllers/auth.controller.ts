@@ -22,7 +22,7 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Public()
-  @ApiBody({ type: [CreateUserDto] })
+  @ApiBody({ type: CreateUserDto })
   @Post('signup')
   signup(@Body() createUserDto: CreateUserDto): Promise<Tokens> {
     return this.authService.signUp(createUserDto);
@@ -30,7 +30,7 @@ export class AuthController {
 
   @Public()
   @Post('signin')
-  @ApiBody({ type: [LoginDto] })
+  @ApiBody({ type: LoginDto })
   async signin(
     @Body() data: LoginDto,
     @Res({ passthrough: true }) res: Response,
