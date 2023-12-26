@@ -1,8 +1,10 @@
 import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
-import { User } from '../users/schema/user.schema';
-import { Post } from 'src/posts/schema/post.schema';
 import { Content } from 'src/content/schema/content.schema';
+import { Post } from 'src/posts/schema/post.schema';
+import { User } from 'src/users/schema/user.schema';
+
+export type BlogDocument = Blog & Document;
 
 @Schema()
 export class Blog {
