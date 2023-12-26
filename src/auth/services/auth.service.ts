@@ -9,7 +9,7 @@ import { JwtService } from '@nestjs/jwt';
 
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { LoginDto } from '../dto/loginDto';
-import { jwtConstants } from '../../utils/constants';
+import { jwtConstants } from '../constants';
 import { UserDocument } from 'src/users/schema/user.schema';
 import { Payload, Tokens } from '../interfaces/auth.interface';
 import { compareHash, hashData } from 'src/utils/hash.functions';
@@ -42,7 +42,7 @@ export class AuthService {
       createdUser._id.toString(),
       tokens.refreshToken,
     );
-    return createdUser;
+    return tokens;
   }
 
   async signIn(data: LoginDto): Promise<Tokens> {

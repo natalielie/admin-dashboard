@@ -69,7 +69,7 @@ export class UsersService {
     if (!updatedUser) {
       throw new NotFoundException(`User #${id} not found`);
     }
-    return sanitize(updatedUser, ['password', 'refreshToken']);
+    return updatedUser;
   }
 
   /** delete */
@@ -88,14 +88,4 @@ export class UsersService {
 
     return ResponseHelper.deleteResponse(deletedUser ? true : false);
   }
-
-  // async addAvatar(userId: string, imageBuffer: Buffer, filename: string) {
-  //   const avatar = await this.awsService.uploadPublicFile(imageBuffer, filename);
-  //   const user = await this.getById(userId);
-  //   // await this.usersRepository.update(userId, {
-  //   //   ...user,
-  //   //   avatar
-  //   // });
-  //   return avatar;
-  //}
 }
