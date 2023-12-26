@@ -8,13 +8,13 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { RoleService } from '../services/roles.service';
-import { UpdateRoleDto } from 'src/Roles/dto/update-role.dto';
-import { CreateRoleDto } from '../dto/create-role.dto';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
 import { RoleGuard } from 'src/auth/guards/role.guard';
 import { Roles } from 'src/decorators/roles.decorator';
 import { Role } from 'src/utils/role.enum';
+import { CreateRoleDto } from '../dto/create-role.dto';
+import { UpdateRoleDto } from '../dto/update-role.dto';
+import { RoleService } from '../services/roles.service';
 
 @Controller('roles')
 @UseGuards(AuthGuard)
