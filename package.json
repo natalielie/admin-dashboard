@@ -38,6 +38,7 @@
     "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",
     "mongoose": "^8.0.3",
+    "nestjs": "^0.0.1",
     "nestjs-form-data": "^1.9.4",
     "nodemailer": "^6.9.7",
     "passport": "^0.7.0",
