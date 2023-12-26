@@ -33,6 +33,7 @@ export class ContentController {
     schema: {
       type: 'object',
       properties: {
+        id: { type: 'string' },
         file: {
           type: 'string',
           format: 'binary',
@@ -50,7 +51,7 @@ export class ContentController {
   async create(
     @UploadedFile()
     file: Express.Multer.File,
-    @Param() id: string,
+    @Body() id: string,
   ) {
     return await this.contentService.create(file, id);
   }

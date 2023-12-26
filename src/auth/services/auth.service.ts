@@ -2,7 +2,6 @@ import {
   BadRequestException,
   ForbiddenException,
   Injectable,
-  Res,
 } from '@nestjs/common';
 import { UsersService } from '../../users/services/users.service';
 import { JwtService } from '@nestjs/jwt';
@@ -62,14 +61,6 @@ export class AuthService {
     );
     await this.updateRefreshToken(user._id.toString(), tokens.refreshToken);
     return tokens;
-  }
-
-  async logout(@Res({ passthrough: true }) res): Promise<UserDocument> {
-    res.cookie('token', '', { expires: new Date() });
-    return this.userService.update(res['sub'], {
-      refreshToken: null,
-      accessToken: null,
-    });
   }
 
   async resetPassword(

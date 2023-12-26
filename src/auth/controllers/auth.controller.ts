@@ -1,14 +1,5 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  Patch,
-  Post,
-  Req,
-  Res,
-} from '@nestjs/common';
-import { Request, Response } from 'express';
+import { Body, Controller, Param, Patch, Post, Res } from '@nestjs/common';
+import { Response } from 'express';
 import { AuthService } from '../services/auth.service';
 import { LoginDto } from '../dto/login-dto';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
@@ -60,10 +51,5 @@ export class AuthController {
     @Body() { currentPassword, newPassword },
   ): Promise<UserDocument> {
     return this.authService.resetPassword(userId, currentPassword, newPassword);
-  }
-
-  @Get('logout')
-  logout(@Req() req: Request) {
-    this.authService.logout(req);
   }
 }
