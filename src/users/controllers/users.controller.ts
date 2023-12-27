@@ -5,6 +5,7 @@ import {
   Get,
   HttpStatus,
   Param,
+  Patch,
   Post,
   Res,
   UseGuards,
@@ -24,7 +25,7 @@ import { ApiBody } from '@nestjs/swagger';
 export class UsersController {
   constructor(private usersService: UsersService) {}
 
-  @ApiBody({ type: [CreateUserDto] })
+  @ApiBody({ type: CreateUserDto })
   @Post('create/user')
   async create(@Body() createUserDto: CreateUserDto) {
     const user = await this.usersService.create(createUserDto);
@@ -45,6 +46,9 @@ export class UsersController {
     const user = await this.usersService.getById(id);
     return sanitize(user, ['password', 'refreshToken']);
   }
+
+  @ApiBody({ type: UpdateUserDto })
+  @Patch('update/user/:id')
   async updateUser(
     @Res() response,
     @Param('id') id: string,
